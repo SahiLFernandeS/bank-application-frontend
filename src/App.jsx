@@ -3,9 +3,10 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignIn from "./Components/SignIn";
 import { UserContext } from "./Context/UserContext";
-import Transaction from "./Components/Transaction";
 import PrivateRoute from "./Components/PrivateRoute";
 import Customer from "./Components/Customer";
+import Transaction from "./Components/Transaction";
+import TransactionById from "./Components/TransactionById";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: "customer",
     element: <PrivateRoute Component={Customer} />,
+  },
+  {
+    path: "transaction/:userId",
+    element: <PrivateRoute Component={TransactionById} />,
   },
 ]);
 

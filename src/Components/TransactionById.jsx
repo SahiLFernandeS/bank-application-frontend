@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { UserContext } from "../Context/UserContext";
 import {
   Button,
-  Input,
   Pagination,
   Stack,
   TextField,
@@ -18,24 +17,27 @@ import { Box } from "@mui/material";
 import { getCall, postCall } from "../services";
 import { API } from "../Api";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-export default function Customer() {
-  const [customer, setCustomer] = useState([]);
+export default function TransactionById() {
+  const { userId } = useParams();
+  const [transaction, setTransaction] = useState([]);
   const [pagination, setPagination] = useState(0);
   const [page, setPage] = React.useState(1);
-
-  const navigate = useNavigate();
 
   const context = React.useContext(UserContext);
 
   var token = context.user.token;
   var payload = {};
   useEffect(() => {
-    getCall(API.allCustomer + "?page=" + page, payload, token)
+    getCall(
+      API.customerTransaction + "/" + userId + "?page=" + page,
+      payload,
+      token
+    )
       .then((res) => {
         if (res.status === true) {
-          setCustomer(res.data.rows);
+          setTransaction(res.data.rows);
           setPagination(res.data.totalPage);
         } else {
           Swal.fire({
@@ -52,9 +54,17 @@ export default function Customer() {
       });
   }, [page]);
 
-  function handleClick(userId) {
-    navigate("/transaction/" + userId, { state: { isAuth: true } });
-  }
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
 
   function handleChange(event, value) {
     setPage(value);
@@ -66,21 +76,6 @@ export default function Customer() {
         padding: "12px 16px",
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontSize: "16px",
-          }}
-        >
-          Welcome {context.user.username}
-        </Typography>
-      </Box>
       <Table
         sx={{
           paddingTop: "20px",
@@ -96,18 +91,16 @@ export default function Customer() {
               borderBottom: "1px solid rgb(230,230,231)",
             }}
           >
-            {["User ID", "Username", "Email", "role", "Created At"].map(
-              (data) => (
-                <TableCell
-                  sx={{
-                    display: "table-cell",
-                  }}
-                  key={data}
-                >
-                  <Typography variant="subtitle1">{data}</Typography>
-                </TableCell>
-              )
-            )}
+            {["TXN ID", "TXN Type", "Amount", "Created At"].map((data) => (
+              <TableCell
+                sx={{
+                  display: "table-cell",
+                }}
+                key={data}
+              >
+                <Typography variant="subtitle1">{data}</Typography>
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody
@@ -117,50 +110,48 @@ export default function Customer() {
             color: "rgb(50, 53, 55)",
           }}
         >
-          {customer?.map((data) => (
+          {transaction?.map((data) => (
             <TableRow
               sx={{
                 width: "100%",
                 cursor: "pointer",
                 display: "table-row",
               }}
-              key={data.user_id}
-              onClick={() => handleClick(data.user_id)}
+              key={data.transaction_id}
             >
               <TableCell
                 sx={{
                   display: "table-cell",
                 }}
               >
-                <Typography variant="subtitle1">{data.user_id}</Typography>
+                <Typography variant="subtitle1">
+                  {data.transaction_id}
+                </Typography>
               </TableCell>
               <TableCell
                 sx={{
                   display: "table-cell",
                 }}
               >
-                <Typography variant="subtitle1">{data.username}</Typography>
+                <Typography variant="subtitle1">
+                  {data.transaction_type}
+                </Typography>
               </TableCell>
               <TableCell
                 sx={{
                   display: "table-cell",
                 }}
               >
-                <Typography variant="subtitle1">{data.email}</Typography>
+                <Typography variant="subtitle1">{data.amount}</Typography>
               </TableCell>
               <TableCell
                 sx={{
                   display: "table-cell",
                 }}
               >
-                <Typography variant="subtitle1">{data.role}</Typography>
-              </TableCell>
-              <TableCell
-                sx={{
-                  display: "table-cell",
-                }}
-              >
-                <Typography variant="subtitle1">{data.created_at}</Typography>
+                <Typography variant="subtitle1">
+                  {data.transaction_date}
+                </Typography>
               </TableCell>
             </TableRow>
           ))}
